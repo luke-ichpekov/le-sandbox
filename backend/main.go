@@ -8,13 +8,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Item struct {
-	Name  string  `json:"name"`
-	Price float64 `json:"price"`
+type User struct {
+	Name string `json:"name"`
+	Age  int    `json:"age"`
 }
 
 func main() {
-	fmt.Printf("running")
+	fmt.Printf("running backend")
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -23,22 +23,18 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		AllowCredentials: true,
 	}))
-	r.GET("/ping", func(c *gin.Context) {
+	Users := []User{}
+	names := []string{"john", "bob", "nick"}
+	for index, val := range names {
+		newUser := User{Name: val, Age: index}
+		Users = append(Users, newUser)
+	}
+
+	r.GET("/users", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"Users": Users,
 		})
 	})
-	list := []string{"item1", "item2"}
-	r.POST("/items", func(c *gin.Context) {
-		var newItem Item
-		if err := c.BindJSON(&newItem); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
 
-		// Do something with the item (e.g., save to DB)
-
-		c.JSON(http.StatusOK, gin.H{"message": "Item received!", "item": newItem, "iitems": list})
-	})
 	r.Run()
 }
